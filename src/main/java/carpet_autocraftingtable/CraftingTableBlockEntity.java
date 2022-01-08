@@ -12,17 +12,12 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.recipe.CraftingRecipe;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeInputProvider;
-import net.minecraft.recipe.RecipeMatcher;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.RecipeUnlocker;
+import net.minecraft.recipe.*;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
@@ -55,12 +50,8 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     public static void init() { } // registers BE type
 
     public CraftingInventory boundCraftingInventory(ScreenHandler handler) {
-    	((CraftingInventoryMixin) craftingInventory).setHandler(handler);
-    	return craftingInventory;
-    }
-
-    public CraftingInventory unbindCraftingInventory() {
-    	((CraftingInventoryMixin) craftingInventory).setHandler(null);
+        ((CraftingInventoryMixin) craftingInventory).setHandler(handler);
+        return craftingInventory;
     }
 
     @Override
@@ -88,6 +79,10 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
         this.openContainers.add(container);
         return container;
     }
+
+//    public void unbindCraftingInventory() {
+//        ((CraftingInventoryMixin) craftingInventory).setHandler(null);
+//    }
 
     @Override
     public int[] getAvailableSlots(Direction dir) {
@@ -173,7 +168,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
         if (this.world.getBlockEntity(this.pos) != this) {
             return false;
         } else {
-            return player.squaredDistanceTo((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+            return player.squaredDistanceTo((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
         }
     }
 
@@ -185,13 +180,13 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     }
 
     @Override
-    public void setLastRecipe(Recipe<?> var1) {
-        lastRecipe = var1;
+    public Recipe<?> getLastRecipe() {
+        return lastRecipe;
     }
 
     @Override
-    public Recipe<?> getLastRecipe() {
-        return lastRecipe;
+    public void setLastRecipe(Recipe<?> var1) {
+        lastRecipe = var1;
     }
 
     @Override
@@ -231,6 +226,16 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
         }
         markDirty();
         return result;
+    }
+
+    public CraftingInventory setHandler(ScreenHandler handler) {
+        ((CraftingInventoryMixin) craftingInventory).setHandler(handler);
+        return craftingInventory;
+    }
+
+    public CraftingInventory unsetHandler() {
+        ((CraftingInventoryMixin) craftingInventory).setHandler(null);
+        return craftingInventory;
     }
 
     public void onContainerClose(AutoCraftingTableContainer container) {

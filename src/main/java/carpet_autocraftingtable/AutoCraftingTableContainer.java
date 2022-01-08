@@ -1,16 +1,15 @@
 package carpet_autocraftingtable;
 
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.RecipeUnlocker;
 import net.minecraft.screen.CraftingScreenHandler;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -79,7 +78,7 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
     }
 
     public void close(PlayerEntity player) {
-        this.crafting_inv = blockEntity.unbindCraftingInventory();
+        this.crafting_inv = blockEntity.unsetHandler();
         ItemStack cursorStack = this.player.currentScreenHandler.getCursorStack();
         if (!cursorStack.isEmpty()) {
             player.dropItem(cursorStack, false);
@@ -88,8 +87,38 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
         this.blockEntity.onContainerClose(this);
     }
 
+    @Override
+    public void populateRecipeFinder(RecipeMatcher finder) {
+        this.crafting_inv.provideRecipeInputs(finder);
+    }
+
+    @Override
+    public void clearCraftingSlots() {
+        this.crafting_inv.clear();
+    }
+
+    @Override
+    public boolean matches(Recipe<? super CraftingInventory> recipe) {
+        return recipe.matches(this.crafting_inv, this.player.world);
+    }
+
+    @Override
+    public int getCraftingWidth() {
+        return this.crafting_inv.getWidth();
+    }
+
+    @Override
+    public int getCraftingHeight() {
+        return this.crafting_inv.getHeight();
+    }
+
+    @Override
+    public boolean canUse(PlayerEntity player) {
+        return this.blockEntity.canPlayerUse(player);
+    }
+
     private class OutputSlot extends Slot {
-        private PlayerEntity player;
+        private final PlayerEntity player;
 
         OutputSlot(Inventory inv, PlayerEntity player) {
             super(inv, 0, 124, 35);
@@ -124,35 +153,5 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
             onCrafted(stack, stack.getCount());
             super.onTakeItem(player, stack);
         }
-    }
-
-    @Override
-    public void populateRecipeMatcher(RecipeMatcher finder) {
-        this.crafting_inv.provideRecipeInputs(finder);
-    }
-
-    @Override
-    public void clearCraftingSlots() {
-        this.crafting_inv.clear();
-    }
-
-    @Override
-    public boolean matches(Recipe<? super CraftingInventory> recipe) {
-        return recipe.matches(this.crafting_inv, this.player.world);
-    }
-
-    @Override
-    public int getCraftingWidth() {
-        return this.crafting_inv.getWidth();
-    }
-
-    @Override
-    public int getCraftingHeight() {
-        return this.crafting_inv.getHeight();
-    }
-
-    @Override
-    public boolean canUse(PlayerEntity player) {
-        return this.blockEntity.canPlayerUse(player);
     }
 }
