@@ -54,6 +54,15 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     public static void init() { } // registers BE type
 
+    public CraftingInventory boundCraftingInventory(ScreenHandler handler) {
+    	((CraftingInventoryMixin) craftingInventory).setHandler(handler);
+    	return craftingInventory;
+    }
+
+    public CraftingInventory unbindCraftingInventory() {
+    	((CraftingInventoryMixin) craftingInventory).setHandler(null);
+    }
+
     @Override
     public void writeNbt(NbtCompound tag) {
         super.writeNbt(tag);
@@ -160,8 +169,12 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     }
 
     @Override
-    public boolean canPlayerUse(PlayerEntity var1) {
-        return true;
+    public boolean canPlayerUse(PlayerEntity player) {
+        if (this.world.getBlockEntity(this.pos) != this) {
+            return false;
+        } else {
+            return player.squaredDistanceTo((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+        }
     }
 
     @Override

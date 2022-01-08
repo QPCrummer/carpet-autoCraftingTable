@@ -26,8 +26,8 @@ jobs:
     - name: Grant execute permission to gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build --no-daemon
     - uses: actions/upload-artifact@v2
       with:
-        name: Compiled artifacts for ${{ github.sha }}
+        name: AutoCraftingTable 1.18.1
         path: build/libs
